@@ -1,0 +1,22 @@
+.steps-container,
+.ingredients-container {
+    display: none;
+    margin-top: 10px;
+}
+
+.steps-container.visible,
+.ingredients-container.visible {
+    display: block;
+}
+
+.steps-container ol {
+    padding-left: 20px;
+}
+
+.level-1 {
+    margin-left: 15px;
+}
+
+.level-2 {
+    margin-left: 30px;
+}
