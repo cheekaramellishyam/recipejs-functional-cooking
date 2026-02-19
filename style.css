@@ -1,31 +1,22 @@
-body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
-  padding: 20px;
+.steps-container,
+.ingredients-container {
+    display: none;
+    margin-top: 10px;
 }
 
-h1 {
-  text-align: center;
+.steps-container.visible,
+.ingredients-container.visible {
+    display: block;
 }
 
-button {
-  padding: 8px 12px;
-  margin: 5px;
-  border: none;
-  background-color: #3498db;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
+.steps-container ol {
+    padding-left: 20px;
 }
 
-button:hover {
-  background-color: #2980b9;
+.level-1 {
+    margin-left: 15px;
 }
 
-.recipe {
-  background-color: white;
-  padding: 15px;
-  margin-top: 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+.level-2 {
+    margin-left: 30px;
 }
