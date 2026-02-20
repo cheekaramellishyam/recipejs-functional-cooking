@@ -1,22 +1,78 @@
-.steps-container,
-.ingredients-container {
-    display: none;
-    margin-top: 10px;
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  margin: 0;
+  padding: 0;
 }
 
-.steps-container.visible,
-.ingredients-container.visible {
-    display: block;
+.container {
+  max-width: 1000px;
+  margin: auto;
+  padding: 20px;
 }
 
-.steps-container ol {
-    padding-left: 20px;
+h1 {
+  text-align: center;
 }
 
-.level-1 {
-    margin-left: 15px;
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
 }
 
-.level-2 {
-    margin-left: 30px;
+.controls input,
+.controls select {
+  padding: 8px;
+  font-size: 14px;
+}
+
+.favorite-filter {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.recipe-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.recipe-card {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  position: relative;
+}
+
+.recipe-card h3 {
+  margin: 0 0 10px;
+}
+
+.recipe-meta {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.favorite-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  font-size: 18px;
+  background: none;
+  border: none;
+}
+
+.favorite-btn.active {
+  color: red;
+}
+
+.expand-btn {
+  margin-top: 10px;
+  padding: 5px 8px;
+  cursor: pointer;
 }

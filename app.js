@@ -1,167 +1,172 @@
-const RecipeApp = (() => {
-    console.log("RecipeApp initializing...");
+(function () {
 
-    // ==========================
-    // PRIVATE VARIABLES
-    // ==========================
-    const recipeContainer = document.getElementById("recipe-container");
+  // ===============================
+  // DATA
+  // ===============================
+  const recipes = [
+    { id: 1, title: "Pasta", difficulty: "easy", time: 20, ingredients: ["noodles", "sauce", "cheese"] },
+    { id: 2, title: "Biryani", difficulty: "hard", time: 60, ingredients: ["rice", "chicken", "spices"] },
+    { id: 3, title: "Salad", difficulty: "easy", time: 10, ingredients: ["lettuce", "tomato", "cucumber"] },
+    { id: 4, title: "Burger", difficulty: "medium", time: 25, ingredients: ["bun", "patty", "cheese"] }
+  ];
 
-    let recipes = [
-        {
-            id: 1,
-            title: "Pasta",
-            difficulty: "easy",
-            time: 20,
-            ingredients: ["Pasta", "Salt", "Water", "Tomato Sauce", "Olive Oil"],
-            steps: [
-                "Boil water",
-                "Add pasta",
-                {
-                    text: "Prepare sauce",
-                    substeps: [
-                        "Heat oil",
-                        "Add tomato sauce",
-                        {
-                            text: "Spice mix",
-                            substeps: [
-                                "Add salt",
-                                "Add chili flakes"
-                            ]
-                        }
-                    ]
-                },
-                "Drain pasta",
-                "Mix and serve"
-            ]
-        },
-        {
-            id: 2,
-            title: "Salad",
-            difficulty: "easy",
-            time: 10,
-            ingredients: ["Lettuce", "Tomato", "Cucumber", "Salt", "Lemon"],
-            steps: [
-                "Wash vegetables",
-                "Chop vegetables",
-                "Mix in bowl",
-                "Add salt and lemon",
-                "Serve fresh"
-            ]
-        }
-        // Add remaining 6 recipes similarly
-    ];
+  // ===============================
+  // STATE
+  // ===============================
+  let searchQuery = "";
+  let selectedDifficulty = "all";
+  let selectedSort = "default";
+  let showFavoritesOnly = false;
+  let favoriteRecipes = JSON.parse(localStorage.getItem("favorites")) || [];
 
-    // ==========================
-    // RECURSIVE STEP RENDERING
-    // ==========================
-    const renderSteps = (steps, level = 0) => {
-        let html = "<ol>";
+  // ===============================
+  // DOM ELEMENTS
+  // ===============================
+  const recipeContainer = document.getElementById("recipeContainer");
+  const searchInput = document.getElementById("searchInput");
+  const difficultyFilter = document.getElementById("difficultyFilter");
+  const sortSelect = document.getElementById("sortSelect");
+  const favoritesOnlyCheckbox = document.getElementById("favoritesOnly");
+  const recipeCounter = document.getElementById("recipeCounter");
 
-        steps.forEach(step => {
-            if (typeof step === "string") {
-                html += `<li class="level-${level}">${step}</li>`;
-            } else {
-                html += `<li class="level-${level}">${step.text}`;
-                html += renderSteps(step.substeps, level + 1);
-                html += "</li>";
-            }
-        });
-
-        html += "</ol>";
-        return html;
+  // ===============================
+  // DEBOUNCE FUNCTION
+  // ===============================
+  function debounce(func, delay) {
+    let timeout;
+    return function (...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), delay);
     };
+  }
 
-    const createStepsHTML = (steps) => {
-        return `<div class="steps-container">${renderSteps(steps)}</div>`;
-    };
+  // ===============================
+  // RENDER FUNCTION
+  // ===============================
+  function renderRecipes() {
+    let filteredRecipes = [...recipes];
 
-    const createIngredientsHTML = (ingredients) => {
-        return `
-            <div class="ingredients-container">
-                <ul>
-                    ${ingredients.map(item => `<li>${item}</li>`).join("")}
-                </ul>
-            </div>
-        `;
-    };
+    // Search filter
+    if (searchQuery) {
+      filteredRecipes = filteredRecipes.filter(recipe =>
+        recipe.title.toLowerCase().includes(searchQuery) ||
+        recipe.ingredients.join(" ").toLowerCase().includes(searchQuery)
+      );
+    }
 
-    const createRecipeCard = (recipe) => {
-        return `
-            <div class="recipe-card">
-                <h3>${recipe.title}</h3>
-                <p>Difficulty: ${recipe.difficulty}</p>
-                <p>Time: ${recipe.time} mins</p>
+    // Difficulty filter
+    if (selectedDifficulty !== "all") {
+      filteredRecipes = filteredRecipes.filter(recipe =>
+        recipe.difficulty === selectedDifficulty
+      );
+    }
 
-                <button class="toggle-btn"
-                    data-recipe-id="${recipe.id}"
-                    data-toggle="steps">
-                    Show Steps
-                </button>
+    // Favorites only filter
+    if (showFavoritesOnly) {
+      filteredRecipes = filteredRecipes.filter(recipe =>
+        favoriteRecipes.includes(recipe.id)
+      );
+    }
 
-                <button class="toggle-btn"
-                    data-recipe-id="${recipe.id}"
-                    data-toggle="ingredients">
-                    Show Ingredients
-                </button>
+    // Sorting
+    if (selectedSort === "time-asc") {
+      filteredRecipes.sort((a, b) => a.time - b.time);
+    } else if (selectedSort === "time-desc") {
+      filteredRecipes.sort((a, b) => b.time - a.time);
+    }
 
-                ${createStepsHTML(recipe.steps)}
-                ${createIngredientsHTML(recipe.ingredients)}
-            </div>
-        `;
-    };
+    recipeContainer.innerHTML = "";
 
-    const renderRecipes = () => {
-        recipeContainer.innerHTML =
-            recipes.map(createRecipeCard).join("");
-    };
+    filteredRecipes.forEach(recipe => {
+      const card = document.createElement("div");
+      card.className = "recipe-card";
 
-    // ==========================
-    // EVENT DELEGATION
-    // ==========================
-    const handleToggleClick = (e) => {
-        const button = e.target.closest(".toggle-btn");
-        if (!button) return;
+      const isFavorite = favoriteRecipes.includes(recipe.id);
 
-        const card = button.closest(".recipe-card");
-        const toggleType = button.dataset.toggle;
+      card.innerHTML = `
+        <button class="favorite-btn ${isFavorite ? "active" : ""}" data-id="${recipe.id}">
+          ♥
+        </button>
+        <h3>${recipe.title}</h3>
+        <div class="recipe-meta">
+          Difficulty: ${recipe.difficulty} <br>
+          Time: ${recipe.time} mins
+        </div>
+        <div class="ingredients" style="display:none;">
+          <strong>Ingredients:</strong>
+          <ul>
+            ${recipe.ingredients.map(item => `<li>${item}</li>`).join("")}
+          </ul>
+        </div>
+        <button class="expand-btn">View Ingredients</button>
+      `;
 
-        const container = card.querySelector(
-            `.${toggleType}-container`
-        );
+      recipeContainer.appendChild(card);
+    });
 
-        container.classList.toggle("visible");
+    updateRecipeCounter(filteredRecipes.length);
+  }
 
-        if (container.classList.contains("visible")) {
-            button.textContent =
-                toggleType === "steps"
-                    ? "Hide Steps"
-                    : "Hide Ingredients";
-        } else {
-            button.textContent =
-                toggleType === "steps"
-                    ? "Show Steps"
-                    : "Show Ingredients";
-        }
-    };
+  // ===============================
+  // UPDATE COUNTER
+  // ===============================
+  function updateRecipeCounter(visibleCount) {
+    recipeCounter.textContent = `Showing ${visibleCount} of ${recipes.length} recipes`;
+  }
 
-    const setupEventListeners = () => {
-        recipeContainer.addEventListener("click", handleToggleClick);
-        console.log("Event listeners attached!");
-    };
+  // ===============================
+  // EVENT LISTENERS
+  // ===============================
 
-    // ==========================
-    // PUBLIC METHOD
-    // ==========================
-    const init = () => {
-        renderRecipes();
-        setupEventListeners();
-        console.log("RecipeApp ready!");
-    };
+  searchInput.addEventListener("input", debounce((e) => {
+    searchQuery = e.target.value.toLowerCase();
+    renderRecipes();
+  }, 300));
 
-    return {
-        init
-    };
+  difficultyFilter.addEventListener("change", (e) => {
+    selectedDifficulty = e.target.value;
+    renderRecipes();
+  });
+
+  sortSelect.addEventListener("change", (e) => {
+    selectedSort = e.target.value;
+    renderRecipes();
+  });
+
+  favoritesOnlyCheckbox.addEventListener("change", (e) => {
+    showFavoritesOnly = e.target.checked;
+    renderRecipes();
+  });
+
+  recipeContainer.addEventListener("click", (e) => {
+
+    // Toggle Favorite
+    if (e.target.classList.contains("favorite-btn")) {
+      const id = Number(e.target.dataset.id);
+
+      if (favoriteRecipes.includes(id)) {
+        favoriteRecipes = favoriteRecipes.filter(favId => favId !== id);
+      } else {
+        favoriteRecipes.push(id);
+      }
+
+      localStorage.setItem("favorites", JSON.stringify(favoriteRecipes));
+      renderRecipes();
+    }
+
+    // Expand Ingredients
+    if (e.target.classList.contains("expand-btn")) {
+      const ingredientsDiv = e.target.previousElementSibling;
+      const isHidden = ingredientsDiv.style.display === "none";
+      ingredientsDiv.style.display = isHidden ? "block" : "none";
+      e.target.textContent = isHidden ? "Hide Ingredients" : "View Ingredients";
+    }
+
+  });
+
+  // ===============================
+  // INITIAL LOAD
+  // ===============================
+  renderRecipes();
 
 })();
-
-document.addEventListener("DOMContentLoaded", RecipeApp.init);
