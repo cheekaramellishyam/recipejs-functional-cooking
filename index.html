@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recipe App</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="container">
+    <h1>Recipe App</h1>
+
+    <!-- Controls -->
+    <div class="controls">
+      <input type="text" id="searchInput" placeholder="Search recipes..." />
+
+      <select id="difficultyFilter">
+        <option value="all">All Difficulties</option>
+        <option value="easy">Easy</option>
+        <option value="medium">Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+
+      <select id="sortSelect">
+        <option value="default">Sort By</option>
+        <option value="time-asc">Time (Low → High)</option>
+        <option value="time-desc">Time (High → Low)</option>
+      </select>
+
+      <label class="favorite-filter">
+        <input type="checkbox" id="favoritesOnly" />
+        Favorites Only
+      </label>
+    </div>
+
+    <p id="recipeCounter"></p>
+
+    <div id="recipeContainer" class="recipe-container"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
